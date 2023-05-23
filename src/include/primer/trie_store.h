@@ -49,6 +49,8 @@ class TrieStore {
 
   // Stores the current root for the trie.
   Trie root_;
+
+  uint32_t readers_;
 };
 
 }  // namespace bustub
