@@ -88,16 +88,6 @@ auto Trie::Put(std::string_view key, T value) const -> Trie {
 }
 
 auto Trie::Remove(std::string_view key) const -> Trie {
-  // std::shared_ptr<const TrieNode> n1 = std::shared_ptr<TrieNode>(std::move(root_->Clone())), n2(root_);
-  // int m = 0;
-  // while (key.length() != m) {
-  //   if (n2->children_.count(key.at(m)) == 0) assert(0);
-  //   de(n1); de(n2);
-  //   n1 = n1->children_.at(key.at(m));
-  //   n2 = n2->children_.at(key.at(m));
-  //   m ++;
-  // }
-  // assert(0);
 
   if (root_ == nullptr) { return std::move(Trie(root_)); }
   if (key.length() == 0) {
@@ -114,21 +104,22 @@ auto Trie::Remove(std::string_view key) const -> Trie {
   new_rt = std::shared_ptr<TrieNode>(std::move(new_rt->Clone()));
   std::shared_ptr<TrieNode> tp_rt(new_rt);
   std::shared_ptr<const TrieNode> fd_rt(root_); 
-  de(root_); de(fd_rt); de(new_rt); de(tp_rt); de("///");
 
   while (len != match) {
-    de(fd_rt); de(tp_rt); de("");
     if (fd_rt->children_.count(key.at(match)) == 0) { return std::move(Trie(root_)); }
     fd_rt = (fd_rt->children_).at(key.at(match));
-    std::shared_ptr<TrieNode> temp = std::shared_ptr<TrieNode>(std::move(fd_rt->Clone()));
+    if (len - 1 == match) {
+      if (!(fd_rt->is_value_node_)) { return std::move(Trie(root_)); }
+      std::shared_ptr<TrieNode> temp = std::make_shared<TrieNode>(std::move(TrieNode(fd_rt->children_)));
+      tp_rt->children_[key.at(match)] = temp;
+      return std::move(Trie(new_rt));
+    }
+    std::shared_ptr<TrieNode> temp = std::move(std::shared_ptr<TrieNode>(std::move(fd_rt->Clone())));
     tp_rt->children_[key.at(match)] = temp;
     tp_rt = temp;
     match ++; 
   }
-  if (tp_rt->is_value_node_) { *tp_rt = std::move(TrieNode(fd_rt->children_)); assert(tp_rt->is_value_node_ == false); }
-  else { return std::move(Trie(root_)); }
-  
-  return std::move(Trie(new_rt));
+  assert(0);
 }
 
 // Below are explicit instantiation of template functions.
