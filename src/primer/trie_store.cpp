@@ -12,36 +12,38 @@ auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<T>> {
   // (3) If the value is found, return a ValueGuard object that holds a reference to the value and the
   //     root. Otherwise, return std::nullopt.
   root_lock_.lock();
-  if (readers_ == 0) { write_lock_.lock(); }
-  readers_ ++;
+  if (readers_ == 0) {
+    write_lock_.lock();
+  }
+  readers_++;
   root_lock_.unlock();
-  const T* ret = root_.Get<T>(std::move(key));
+  const T *ret = root_.Get<T>(key);
   root_lock_.lock();
-  if ((-- readers_) == 0) { write_lock_.unlock(); }
+  if ((--readers_) == 0) {
+    write_lock_.unlock();
+  }
   root_lock_.unlock();
-  if (ret == nullptr) { return std::nullopt; }
-  else { return std::make_optional(std::move(ValueGuard(root_, *ret))); }
+  if (ret == nullptr) {
+    return std::nullopt;
+  }
+  return std::make_optional(std::move(ValueGuard(root_, *ret)));
 }
 
 template <class T>
 void TrieStore::Put(std::string_view key, T value) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
   // The logic should be somehow similar to `TrieStore::Get`.
-  root_lock_.lock();
   write_lock_.lock();
-  root_ = std::move(root_.Put(std::move(key), std::move(value)));
+  root_ = root_.Put(key, std::move(value));
   write_lock_.unlock();
-  root_lock_.unlock();
 }
 
 void TrieStore::Remove(std::string_view key) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
   // The logic should be somehow similar to `TrieStore::Get`.
-  root_lock_.lock();
   write_lock_.lock();
-  root_ = std::move(root_.Remove(std::move(key)));
+  root_ = root_.Remove(key);
   write_lock_.unlock();
-  root_lock_.unlock();
 }
 
 // Below are explicit instantiation of template functions.

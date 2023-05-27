@@ -2,7 +2,7 @@
 #include <string_view>
 #include <bits/stdc++.h>
 
-#define de(X) { std::cout << #X << " : " << X << std::endl; }
+#define de(X) { std::cout << #X << " : " << (X) << std::endl; }
 
 namespace bustub {
 
@@ -11,7 +11,7 @@ auto Trie::Get(std::string_view key) const -> const T * {
   
   if (root_ == nullptr) { return nullptr; }
   if (key.length() == 0) { 
-    if (root_->is_value_node_ == false) { return nullptr; }
+    if (!(root_->is_value_node_)) { return nullptr; }
     if (const TrieNodeWithValue<T>* tnv = dynamic_cast<const TrieNodeWithValue<T> *> (root_.get()))
       { 
         if (tnv->value_)  { return (tnv->value_).get(); }

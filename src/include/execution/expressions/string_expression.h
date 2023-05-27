@@ -28,6 +28,9 @@
 #include "type/type_id.h"
 #include "type/value_factory.h"
 
+#define de(x) \
+  { std::cout << #x << " : " << (x) << std::endl; }
+
 namespace bustub {
 
 enum class StringExpressionType { Lower, Upper };
@@ -45,6 +48,26 @@ class StringExpression : public AbstractExpression {
   }
 
   auto Compute(const std::string &val) const -> std::string {
+    std::string t(val);
+    uint32_t len = t.length();
+    switch (expr_type_) {
+      case StringExpressionType::Upper:
+        for (uint32_t i = 0; i < len; i++) {
+          if (t[i] >= 'a' && t[i] <= 'z') {
+            t[i] += 'A' - 'a';
+          }
+        }
+        return t;
+      case StringExpressionType::Lower:
+        for (uint32_t i = 0; i < len; i++) {
+          if (t[i] >= 'A' && t[i] <= 'Z') {
+            t[i] += 'a' - 'A';
+          }
+        }
+        return t;
+      default:
+        throw bustub::NotImplementedException("expect the first arg to be varchar");
+    }
     // TODO(student): implement upper / lower.
     return {};
   }

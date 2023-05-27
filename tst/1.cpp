@@ -4,7 +4,7 @@
 
 using namespace bustub;
 
-#define de(X) { std::cout << #X << " : " << X << std::endl; }
+#define de(X) { std::cout << #X << " : " << (X) << std::endl; }
 
 #define ASSERT_EQ(a, b) assert((a) == (b))
 

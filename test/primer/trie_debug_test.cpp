@@ -12,6 +12,9 @@
 #include "primer/trie_answer.h"
 #include "trie_debug_answer.h"  // NOLINT
 
+#define de(x) \
+  { std::cout << #x << " : " << (x) << std::endl; }
+
 namespace bustub {
 
 TEST(TrieDebugger, TestCase) {

@@ -114,134 +114,20 @@ class Trie {
   // 2. If the key is in the trie but the type is mismatched, return nullptr.
   // 3. Otherwise, return the value.
   template <class T>
-  auto Get(std::string_view key) const -> const T * {
-    
-    if (root_ == nullprt) return nullptr;
-    if (key.length() == 0) { 
-	if (root_->is_value_node == false) return nullptr;
-	TrieNodeWithValue<T>* tnv = dynamic_cast<TrieNodeWithValue<T>> (root_.get()); 
-	return (tnv->value).get();
-    }
-    std::shared_ptr<const TrieNode> head_(root_); int index_ = 0, size_ = key.length();
-
-    while (true) {
-      if (index_ == size_) {
-	if (head_->is_value_node) {
-	    TrieNodeWithValue<T>* tnv = dynamic_cast<TrieNodeWithValue<T>> (head_.get()); 
-	    return (tnv->value).get();
-	}
-	else { return nullptr; }
-      } 
-      auto c = head_->children_.find(key.at(index_));
-
-      if (c == head_.children_.end()) { return nullptr; }
-      else {      
-	BUSTUB_ENSURE(c != nullptr, "----***WRONG***----\n");
-
-        std::shared_ptr<const TrieNode> ne_ = (*c).second;
-        index_ ++;
-        head_ = ne_;
-      }
-    }
-  }
+  auto Get(std::string_view key) const -> const T *;
 
   // Put a new key-value pair into the trie. If the key already exists, overwrite the value.
   // Returns the new trie.
   template <class T>
-  auto Put(std::string_view key, T value) const -> Trie {
-    
-    if (key.length() == 0) {
-      std::shared_ptr<const TrieNode> cp = std::shared_ptr<const TrieNode>(std::move(root_->Clone()));
-      TrieNodeWithValue<T> end_(cp->children_, std::make_shared(value));
-      *root_ = std::move(end_); 
-      return Trie(root); 
-    }
-
-    int len = key.length(), match = 0;
-    std::shared_ptr<TrieNode> new_rt1(new TrieNode);
-    std::shared_ptr<TrieNode> new_rt2(new TrieNodeWithValue);
-    std::shared_ptr<TrieNode> new_rt = root_->is_value_node_ == true ? new_rt2 : new_rt1, tp_rt(new_rt);
-    const TrieNode* fd_rt = root_.get();
-
-
-     while (len != match) {
-      
-	if (root_->is_value_node) {
-	    TrieNodeWithValue<TrieNodeWithValue<T>>* tnv1 = dynamic_cast<TrieNodeWithValue *> (tp_rt.get()),
-			    			   * tnv2 = dynamic_cast<TrieNodeWithValue *> (fd_rt);
-	    *tnv1 = std::move(TrieNodeWithValue<T> (tnv2->children_, tnv2->value_));
-	}
-	else { *tp_rt = std::move(TrieNode(tnv2->children_)); }
-
-	TrieNode* ne = fd_rt->children_[key.at(match)].get();
-	if (ne->is_value_node_) {
-	    std::shared_ptr<TrieNode> me(new TrieNodeWithValue<T>);
-	    tp_rt->children_[key.at(match)] = me;
-	}
-	else {
-	    std::shared_ptr<TrieNode> me(new TrieNode);
-	    tp_rt->children_[key.at(match)] = me;
-	}
-	tp_rt = tp_rt->children_[key.at(match)];
-	fd_rt = fd_rt->children_[key.at(match)].get();
-	match ++;
-    }
-    
-    TrieNodeWithValue<TrieNodeWithValue<T>>* tnv = dynamic_cast<TrieNodeWithValue *> (tp_rt.get());
-    tnv->value_ = std::move(value);
-    
-    this->root_ = new_rt;
-    return std::move(Trie(this->root_));
-}
+  auto Put(std::string_view key, T value) const -> Trie;
 
   // Remove the key from the trie. If the key does not exist, return the original trie.
   // Otherwise, returns the new trie.
-  auto Remove(std::string_view key) const -> Trie {
+  auto Remove(std::string_view key) const -> Trie;
 
-    if (this->Get(key) == nullptr) return std::move(Trie(root_));
+  auto Count() const -> uint32_t;
 
-    if (key.length() == 0) {
-      *root_ = std::move(TrieNode(root_->children_); 
-      return Trie(root); 
-    }
-
-    int len = key.length(), match = 0;
-    std::shared_ptr<TrieNode> new_rt1(new TrieNode);
-    std::shared_ptr<TrieNode> new_rt2(new TrieNodeWithValue);
-    std::shared_ptr<TrieNode> new_rt = root_->is_value_node_ == true ? new_rt2 : new_rt1, tp_rt(new_rt);
-    const TrieNode* fd_rt = root_.get();
-
-
-     while (len != match) {
-      
-	if (root_->is_value_node) {
-	    TrieNodeWithValue<TrieNodeWithValue<T>>* tnv1 = dynamic_cast<TrieNodeWithValue *> (tp_rt.get()),
-			    			   * tnv2 = dynamic_cast<TrieNodeWithValue *> (fd_rt);
-	    *tnv1 = std::move(TrieNodeWithValue<T> (tnv2->children_, tnv2->value_));
-	}
-	else { *tp_rt = std::move(TrieNode(tnv2->children_)); }
-
-	TrieNode* ne = fd_rt->children_[key.at(match)].get();
-	if (ne->is_value_node_ && match != len - 1) {
-	    std::shared_ptr<TrieNode> me(new TrieNodeWithValue<T>);
-	    tp_rt->children_[key.at(match)] = me;
-	}
-	else {
-	    std::shared_ptr<TrieNode> me(new TrieNode);
-	    tp_rt->children_[key.at(match)] = me;
-	}
-	tp_rt = tp_rt->children_[key.at(match)];
-	fd_rt = fd_rt->children_[key.at(match)].get();
-	match ++;
-    }
-    
-    TrieNodeWithValue<TrieNodeWithValue<T>>* tnv = dynamic_cast<TrieNodeWithValue *> (tp_rt.get());
-    tnv->value_ = std::move(value);
-    
-    this->root_ = new_rt;
-    return std::move(Trie(this->root_));
-  }
+  auto Countkey(std::string_view key) const -> uint32_t;
 };
 
 }  // namespace bustub
-
